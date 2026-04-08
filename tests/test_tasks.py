@@ -69,3 +69,54 @@ def test_update_task_description():
 def test_get_root():
     response = client.get("/")
     assert response.status_code == 200
+
+def test_create_task_without_title():
+    response = client.post("/tasks", json={})
+    assert response.status_code == 422
+
+def test_get_nonexistent_task():
+    response = client.get("/tasks/9999")
+    assert response.status_code == 404
+
+def test_update_nonexistent_task():
+    response = client.put("/tasks/9999", json={"title": "Treino de futsal"})
+    assert response.status_code == 404
+
+def test_delete_nonexistent_task():
+    response = client.delete("/tasks/9999")
+    assert response.status_code == 404
+
+def test_complete_nonexistent_task():
+    response = client.patch("/tasks/9999/complete")
+    assert response.status_code == 404
+
+def test_invalid_id_type():
+    response = client.get("/tasks/abc")
+    assert response.status_code == 422
+
+def test_update_with_invalid_body():
+    create = client.post("/tasks", json={"title": "Campeonato de LOL"})
+    task_id = create.json()["id"]
+
+    response = client.put(f"/tasks/{task_id}", json={})
+    assert response.status_code == 422
+
+def test_delete_twice():
+    create = client.post("/tasks", json={"title": "Fazer almoço"})
+    task_id = create.json()["id"]
+
+    client.delete(f"/tasks/{task_id}")
+    response = client.delete(f"/tasks/{task_id}")
+    assert response.status_code == 404
+
+def test_complete_twice():
+    create = client.post("/tasks", json={"title": "Fazer janta"})
+    task_id = create.json()["id"]
+
+    client.patch(f"/tasks/{task_id}/complete")
+    response = client.patch(f"/tasks/{task_id}/complete")
+    assert response.status_code == 200
+
+def test_empty_task_list():
+    response = client.get("/tasks")
+    assert response.status_code == 200
