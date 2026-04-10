@@ -27,10 +27,18 @@ jobs:
         run: |
           PYTHONPATH=. python -m pytest \
           --html=report.html \
-          --self-contained-html
+          --self-contained-html \
+          --cov=app \
+          --cov-report=html
 
-      - name: Upload test report
+      - name: Upload relatório de teste
         uses: actions/upload-artifact@v4
         with:
           name: test-report
           path: report.html
+        
+      - name: Upload cobertura de testes
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: htmlcov/
